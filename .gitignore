@@ -38,7 +38,7 @@ ENV/
 .env
 .env.local
 .env.production
-config.yaml
+# config.yaml 保留提交，作为默认配置模板
 
 # === 运行时文件 ===
 uploads/*

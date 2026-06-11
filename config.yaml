@@ -1,0 +1,35 @@
+# OCR API 服务配置
+
+server:
+  host: "0.0.0.0"
+  port: 8000
+  debug: false
+  cors_origins:
+    - "*"
+
+ocr:
+  default_engine: "paddle"        # 默认引擎：paddle | tesseract
+  tesseract_lang: "chi_sim"       # Tesseract 语言包
+  paddle_lang: "ch"               # PaddleOCR 语言
+  enable_correction: true          # 是否默认开启文本纠错
+
+upload:
+  max_file_size_mb: 20             # 单文件最大 20MB
+  max_batch_files: 50              # 批量最多 50 张
+  allowed_extensions:
+    - ".jpg"
+    - ".jpeg"
+    - ".png"
+    - ".bmp"
+    - ".webp"
+    - ".gif"
+
+rate_limit:
+  enabled: true
+  requests_per_minute: 30         # 每分钟 30 次
+  requests_per_hour: 300           # 每小时 300 次
+
+log:
+  level: "INFO"                    # DEBUG | INFO | WARNING | ERROR
+  format: "%(asctime)s | %(levelname)-5s | %(name)s | %(message)s"
+  json_format: false               # 生产环境建议开启 true

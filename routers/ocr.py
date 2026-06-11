@@ -3,6 +3,7 @@
 import os
 import shutil
 import uuid
+import time
 import logging
 from typing import List
 
@@ -61,6 +62,20 @@ def _save_upload(file: UploadFile) -> str:
     return path
 
 
+def _safe_remove(path: str, retries: int = 5, delay: float = 0.1):
+    """安全删除文件（Windows 上文件句柄可能未释放，需要重试）"""
+    for i in range(retries):
+        try:
+            if os.path.exists(path):
+                os.remove(path)
+            return
+        except PermissionError:
+            if i < retries - 1:
+                time.sleep(delay * (i + 1))
+            else:
+                logger.warning(f"无法删除临时文件: {path}（文件仍被占用，将在下次清理）")
+
+
 @app_limiter.limit("10/minute")
 @router.post("/recognize", response_model=OCRResult, summary="单张图片识别")
 async def recognize_image(
@@ -112,8 +127,7 @@ async def recognize_image(
         logger.error(f"[{request_id}] 识别失败: {e}", exc_info=True)
         raise HTTPException(500, f"识别失败: {str(e)}")
     finally:
-        if os.path.exists(path):
-            os.remove(path)
+        _safe_remove(path)
 
 
 @app_limiter.limit("20/minute")
@@ -172,8 +186,7 @@ async def batch_recognize(
         logger.info(f"[{request_id}] 批量识别完成: 总计={len(files)}, 成功={success}, 失败={failed}")
     finally:
         for path, _ in saved_paths:
-            if os.path.exists(path):
-                os.remove(path)
+            _safe_remove(path)
 
     return BatchOCRResult(
         total=len(files),
@@ -229,8 +242,7 @@ async def recognize_and_export(
                     "full_text": f"[识别失败: {e}]",
                 })
             finally:
-                if os.path.exists(path):
-                    os.remove(path)
+                _safe_remove(path)
 
         export_path = await export_results(results, fmt.value, OUTPUT_DIR)
         

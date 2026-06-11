@@ -1,0 +1,21 @@
+# Web 框架
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+python-multipart>=0.0.20
+
+# OCR 引擎
+paddlepaddle>=3.0.0
+paddleocr>=2.9.1
+pytesseract>=0.3.13
+Pillow>=11.0.0
+
+# 工具
+openpyxl>=3.1.5
+aiofiles>=24.0.0
+pyyaml>=6.0
+
+# 限流
+slowapi>=0.1.9
+
+# 日志（可选，生产环境用）
+# python-json-logger>=2.0.7
